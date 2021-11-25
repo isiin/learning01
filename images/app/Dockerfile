@@ -1,4 +1,5 @@
-FROM php:7.4-fpm-alpine
+ARG SRC_IMAGE
+FROM ${SRC_IMAGE}
 
 # install msmtp
 RUN apk add --no-cache msmtp;
