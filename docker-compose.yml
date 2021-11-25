@@ -26,6 +26,8 @@ services:
   app:
     build:
       context: ./images/app
+      args:
+        - SRC_IMAGE=php:7.4-fpm-alpine
     volumes:
       - ./src:/var/www/html
       - ./conf/app/php.smtp.ini:/usr/local/etc/php/conf.d/php_smtp.ini
