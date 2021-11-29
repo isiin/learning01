@@ -11,12 +11,12 @@ services:
     volumes:
       - db-data:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASS}
       - MYSQL_ALLOW_EMPTY_PASSWORD=no
       - MYSQL_RANDOM_ROOT_PASSWORD=no
-      - MYSQL_USER=dbuser
-      - MYSQL_PASSWORD=dbpass
-      - MYSQL_DATABASE=testdb
+      - MYSQL_USER=${DB_USER}
+      - MYSQL_PASSWORD=${DB_PASS}
+      - MYSQL_DATABASE=${DB_NAME}
     command:
       - mysqld
       - --character-set-server=utf8mb4
