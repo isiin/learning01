@@ -1,0 +1,5 @@
+sudo vi /etc/resolv.conf
+sudo systemctl daemon-reload
+sudo systemctl restart snap.docker.dockerd
+
+vscode://vscode.github-authentication/did-authenticate?windowid=3&code=6d55f941b37377ddd24c&state=5ceea744-9441-4e2c-b98f-29bd0649cf2c 

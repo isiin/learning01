@@ -1,11 +1,11 @@
-version: '3.6'
+version: "3.8"
 
 volumes:
   db-data:
 
 services:
   db:
-    image: mysql:5.7
+    image: mariadb:10.6
     ports:
       - "3306:3306"
     volumes:
@@ -17,7 +17,6 @@ services:
       - MYSQL_USER=dbuser
       - MYSQL_PASSWORD=dbpass
       - MYSQL_DATABASE=testdb
-      - TZ=Asia/Tokyo 
     command:
       - mysqld
       - --character-set-server=utf8mb4
@@ -32,8 +31,6 @@ services:
       - ./conf/app/php.smtp.ini:/usr/local/etc/php/conf.d/php_smtp.ini
       - ./conf/app/msmtp.msmtprc:/etc/msmtprc
       - ./src:/var/www/html
-    environment:
-      - TZ=Asia/Tokyo 
     depends_on:
       - db
 
@@ -45,8 +42,6 @@ services:
       - ./conf/web/nginx.conf:/etc/nginx/nginx.conf
       - ./conf/web/nginx.default.conf:/etc/nginx/conf.d/default.conf
       - ./src:/var/www/html
-    environment:
-      - TZ=Asia/Tokyo 
     depends_on:
       - app
 
@@ -55,4 +50,3 @@ services:
     ports:
       - "1080:1080"
       - "1025:1025"
-    restart: always
