@@ -5,7 +5,7 @@ volumes:
 
 services:
   db:
-    image: mariadb:10.6
+    image: mariadb:latest
     ports:
       - "3306:3306"
     volumes:
@@ -25,8 +25,6 @@ services:
   app:
     build:
       context: ./images/app
-      args:
-        - SRC_IMAGE=php:7.4-fpm-alpine
     volumes:
       - ./conf/app/php.smtp.ini:/usr/local/etc/php/conf.d/php_smtp.ini
       - ./conf/app/msmtp.msmtprc:/etc/msmtprc
