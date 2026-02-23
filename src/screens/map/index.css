@@ -1,0 +1,35 @@
+/* マーカーアイコンのスタイル */
+.marker-pin-icon {
+	background: none;
+	border: none;
+}
+
+.marker-pin-icon svg {
+	/* SVGの形状に合わせて影を落とす */
+	filter: drop-shadow(2px 4px 3px rgba(0, 0, 0, 0.4));
+	/* アニメーション用 */
+	transition: all 0.2s ease-out;
+}
+
+/* ホバー時に少し浮き上がる演出 */
+.marker-pin-icon:hover svg {
+	transform: translateY(-4px);
+	filter: drop-shadow(2px 8px 6px rgba(0, 0, 0, 0.3));
+}
+
+/* 集約マーカーのスタイル */
+.marker-cluster {
+	border-radius: 2px;
+}
+.marker-cluster div {
+	width: 48px;
+	height: 48px;
+	margin-left: 8px;
+	margin-top: 8px;
+
+	border-radius: 2px;
+	font-size: 24px;
+}
+.marker-cluster span {
+	line-height: 48px;
+}
