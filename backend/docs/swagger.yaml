@@ -1,0 +1,47 @@
+basePath: /v1
+definitions:
+  httputil.HTTPError:
+    properties:
+      code:
+        example: 400
+        type: integer
+      message:
+        example: status bad request
+        type: string
+    type: object
+  model.Surveyor:
+    properties:
+      id:
+        example: "000001"
+        type: string
+      name:
+        example: 調査員1
+        type: string
+    type: object
+info:
+  contact: {}
+  title: react-ts backend API
+  version: "1.0"
+paths:
+  /surveyors/query:
+    get:
+      parameters:
+      - description: 事業所のid
+        in: query
+        name: q
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Surveyor'
+            type: array
+        default:
+          description: ""
+          schema:
+            $ref: '#/definitions/httputil.HTTPError'
+      summary: 指定した事業所の調査員のリストを返す
+      tags:
+      - surveyors
+swagger: "2.0"

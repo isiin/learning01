@@ -1,0 +1,72 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "react-ts backend API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "basePath": "/v1",
+    "paths": {
+        "/surveyors/query": {
+            "get": {
+                "tags": [
+                    "surveyors"
+                ],
+                "summary": "指定した事業所の調査員のリストを返す",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "事業所のid",
+                        "name": "q",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Surveyor"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "",
+                        "schema": {
+                            "$ref": "#/definitions/httputil.HTTPError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "httputil.HTTPError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "example": 400
+                },
+                "message": {
+                    "type": "string",
+                    "example": "status bad request"
+                }
+            }
+        },
+        "model.Surveyor": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "000001"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "調査員1"
+                }
+            }
+        }
+    }
+}
