@@ -1,15 +1,24 @@
 basePath: /v1
 definitions:
-  httputil.HTTPError:
+  handler.ErrorResponse:
     properties:
-      code:
-        example: 400
-        type: integer
       message:
         example: status bad request
         type: string
+      status:
+        example: 400
+        type: integer
     type: object
-  model.Surveyor:
+  handler.GetSampleResponse:
+    properties:
+      id:
+        example: "000001"
+        type: string
+      name:
+        example: 調査員1
+        type: string
+    type: object
+  handler.Surveyor:
     properties:
       id:
         example: "000001"
@@ -23,24 +32,63 @@ info:
   title: react-ts backend API
   version: "1.0"
 paths:
+  /samples:
+    get:
+      parameters:
+      - in: query
+        name: q1
+        required: true
+        type: string
+      - in: query
+        maxLength: 3
+        name: q2
+        type: string
+      - in: query
+        name: q3
+        type: string
+      - in: query
+        name: q4
+        type: string
+      - collectionFormat: csv
+        in: query
+        items:
+          type: integer
+        name: q5
+        type: array
+      - in: query
+        name: q6
+        type: string
+      responses:
+        "200":
+          description: 取得結果
+          schema:
+            $ref: '#/definitions/handler.GetSampleResponse'
+        "400":
+          description: 検証エラー
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: 実験用
+      tags:
+      - samples
   /surveyors/query:
     get:
       parameters:
       - description: 事業所のid
         in: query
         name: q
+        required: true
         type: string
       responses:
         "200":
-          description: OK
+          description: 調査員のリスト
           schema:
             items:
-              $ref: '#/definitions/model.Surveyor'
+              $ref: '#/definitions/handler.Surveyor'
             type: array
-        default:
-          description: ""
+        "400":
+          description: 検証エラー
           schema:
-            $ref: '#/definitions/httputil.HTTPError'
+            $ref: '#/definitions/handler.ErrorResponse'
       summary: 指定した事業所の調査員のリストを返す
       tags:
       - surveyors

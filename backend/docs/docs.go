@@ -15,6 +15,66 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/samples": {
+            "get": {
+                "tags": [
+                    "samples"
+                ],
+                "summary": "実験用",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "name": "q1",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 3,
+                        "type": "string",
+                        "name": "q2",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "q3",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "q4",
+                        "in": "query"
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "collectionFormat": "csv",
+                        "name": "q5",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "q6",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "取得結果",
+                        "schema": {
+                            "$ref": "#/definitions/handler.GetSampleResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "検証エラー",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/surveyors/query": {
             "get": {
                 "tags": [
@@ -26,23 +86,24 @@ const docTemplate = `{
                         "type": "string",
                         "description": "事業所のid",
                         "name": "q",
-                        "in": "query"
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "調査員のリスト",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.Surveyor"
+                                "$ref": "#/definitions/handler.Surveyor"
                             }
                         }
                     },
-                    "default": {
-                        "description": "",
+                    "400": {
+                        "description": "検証エラー",
                         "schema": {
-                            "$ref": "#/definitions/httputil.HTTPError"
+                            "$ref": "#/definitions/handler.ErrorResponse"
                         }
                     }
                 }
@@ -50,20 +111,33 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "httputil.HTTPError": {
+        "handler.ErrorResponse": {
             "type": "object",
             "properties": {
-                "code": {
-                    "type": "integer",
-                    "example": 400
-                },
                 "message": {
                     "type": "string",
                     "example": "status bad request"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 400
                 }
             }
         },
-        "model.Surveyor": {
+        "handler.GetSampleResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "example": "000001"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "調査員1"
+                }
+            }
+        },
+        "handler.Surveyor": {
             "type": "object",
             "properties": {
                 "id": {
