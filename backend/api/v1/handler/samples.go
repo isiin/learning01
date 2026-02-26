@@ -3,22 +3,22 @@ package handler
 import (
 	"log"
 	"net/http"
+	"react-ts/backend/domain"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type GetSampleRequest struct {
-	Q1 string    `form:"q1" binding:"required,alphanum,len=3"`
-	Q2 string    `form:"q2" binding:"max=3"`
-	Q3 string    `form:"q3" binding:"uuid"`
-	Q4 string    `form:"q4" binding:"email"`
-	Q5 []int     `form:"q5" collection_format:"csv"`
-	Q6 time.Time `form:"q6" time_format:"2006-01-02" time_utc:"1"`
+	Q1       string    `form:"q1" binding:"required,alphanum,len=3"`
+	Q2       string    `form:"q2" binding:"omitempty,max=3,min=2"`
+	UUID     string    `form:"uuid" binding:"omitempty,uuid"`
+	Email    string    `form:"email" binding:"omitempty,email"`
+	IntArray []int     `form:"intArray" collection_format:"csv"`
+	DateUtc  time.Time `form:"dateUtc" time_format:"2006-01-02" time_utc:"1"`
 }
 
 type GetSampleResponse struct {
-	ID   string `json:"id" example:"000001"`
 	Name string `json:"name" example:"調査員1"`
 }
 
@@ -32,15 +32,16 @@ type GetSampleResponse struct {
 //	@Router			/samples [get]
 func (h *Handler) GetSamples(c *gin.Context) {
 	// TODO
-	var req GetSampleRequest
-	if err := c.ShouldBind(&req); err != nil {
-		ErrorJson(c, http.StatusBadRequest, err)
+	var p GetSampleRequest
+	if err := c.ShouldBind(&p); err != nil {
+		details := createValidationDetails(err)
+		ResponseErrorJson(c, http.StatusBadRequest, domain.ECInvalidRequest, details)
 		return
 	}
 
 	// TODO
-	log.Println(req)
+	log.Println(p)
 
-	res := GetSampleResponse{ID: "001", Name: "調査員1"}
+	res := GetSampleResponse{Name: "調査員1"}
 	c.JSON(http.StatusOK, res)
 }
