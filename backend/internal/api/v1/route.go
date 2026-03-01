@@ -13,9 +13,8 @@ import (
 func Route(r *gin.Engine, cp *bootstrap.Components) {
 
 	v1 := r.Group("/v1")
-	{
-		v1.Use(handler.ErrorHandler())
-		v1.GET("/surveyors", handler.GetSurveyors())
-		v1.GET("/samples", handler.GetSamples(cp.SampleUC))
-	}
+
+	v1.Use(handler.ErrorHandler())
+	v1.GET("/surveyors", handler.GetSurveyors())
+	v1.GET("/samples", handler.GetSamples(cp.SampleUC))
 }

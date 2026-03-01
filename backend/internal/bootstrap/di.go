@@ -2,7 +2,7 @@ package bootstrap
 
 import (
 	"react-ts/backend/internal/domain"
-	"react-ts/backend/internal/repo"
+	"react-ts/backend/internal/repository"
 	"react-ts/backend/internal/usecase"
 )
 
@@ -12,7 +12,7 @@ type Components struct {
 }
 
 func NewComponents() *Components {
-	sampleRepo := repo.NewSamplesRepository()
+	sampleRepo := repository.NewSamplesRepository()
 	sampleUC := usecase.NewSamplesUseCase(sampleRepo)
 	return &Components{
 		SampleRepo: sampleRepo,

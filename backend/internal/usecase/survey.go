@@ -17,7 +17,7 @@ type surveyUseCase struct {
 func (u *surveyUseCase) GetSurveyors(filter domain.SurveyorFilter) (domain.Surveyors, error) {
 	md, err := u.repo.GetSurveyors(filter)
 	if err != nil {
-		// TODO return err
+		// TODO Errのラップ
 		return nil, err
 	}
 	return md, nil

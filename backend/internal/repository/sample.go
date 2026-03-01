@@ -1,9 +1,11 @@
-package repo
+package repository
 
 import (
 	"react-ts/backend/internal/domain"
 	"react-ts/backend/internal/errs"
 )
+
+// TODO repositoryの実装
 
 func NewSamplesRepository() domain.SampleRepository {
 	return &repository{}
