@@ -1,94 +1,161 @@
 package handler
 
 import (
+	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"react-ts/backend/internal/domain"
+	"react-ts/backend/internal/errs"
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func Test_GetSurveyors_Success(t *testing.T) {
-	// Ginをテストモードに設定（ログ出力を抑制）
 	gin.SetMode(gin.TestMode)
 
-	// TODO テストケースの定義
 	tests := []struct {
-		q string // テストするクエリパラメータ (?q=...)
-		s int    // 期待するHTTPステータスコード
+		name     string
+		oid      string
+		mockRet  domain.Surveyors
+		expected []GetSurveyorsResponse
 	}{
-		{q: " ", s: 200},
-		{q: "?id=000001&office-id=XX&view=detail", s: 200},
-		{q: "?id=000001", s: 200},
-		{q: "?office-id=XX", s: 200},
-		{q: "?view=basic", s: 200},
-		{q: "?view=detail", s: 200},
+		{
+			name:     "Empty",
+			oid:      "aa",
+			mockRet:  domain.Surveyors(nil),
+			expected: []GetSurveyorsResponse{},
+		},
+		{
+			name: "Success",
+			oid:  "bb",
+			mockRet: domain.Surveyors{
+				{ID: "11111", Name: "サンプル1"},
+				{ID: "22222", Name: "サンプル2"},
+			},
+			expected: []GetSurveyorsResponse{
+				{ID: "11111", Name: "サンプル1"},
+				{ID: "22222", Name: "サンプル2"},
+			},
+		},
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.q, func(t *testing.T) {
-			// 1. レスポンスを記録するレコーダーとコンテキストを作成
+		t.Run(tt.name, func(t *testing.T) {
 			w := httptest.NewRecorder()
 			c, _ := gin.CreateTestContext(w)
+			c.Request, _ = http.NewRequest("GET", "/dummy?office-id="+tt.oid, nil)
 
-			// 2. リクエストを擬似的に作成してセット
-			c.Request, _ = http.NewRequest("GET", "/dummy"+tt.q, nil)
+			uc := new(MockSurveyUseCase)
+			uc.On("GetSurveyors",
+				// mockに渡されるパラメータの検証はここに書く
+				mock.MatchedBy(func(filter domain.SurveyorFilter) bool {
+					return filter.OfficeID == tt.oid
+				}),
+			).Return(tt.mockRet, nil)
 
-			// 3. ハンドラーを実行
-			GetSurveyors()(c)
+			GetSurveyors(uc)(c)
 
-			// 4. 結果の検証
-			if w.Code != tt.s {
-				t.Errorf("status code got %d, want %d", w.Code, tt.s)
-			}
+			assert := assert.New(t)
 
-			// 必要であればレスポンスボディ(w.Body.String())の検証もここで行えます
-			// TODO モック作成とレスポンスボディの検証...
+			assert.Equal(http.StatusOK, w.Code)
+			assert.Empty(c.Errors)
+
+			expectedJson, _ := json.Marshal(tt.expected)
+			assert.Equal(string(expectedJson), w.Body.String())
+
 		})
 	}
 }
 
-func TestGetSurveyors_Validation(t *testing.T) {
-	//TODO
-	// // Ginをテストモードに設定（ログ出力を抑制）
-	// gin.SetMode(gin.TestMode)
+func Test_GetSurveyors_Validation(t *testing.T) {
+	gin.SetMode(gin.TestMode)
 
-	// // TODO テストケースの定義
-	// tests := []struct {
-	// 	q string // テストするクエリパラメータ (?q=...)
-	// 	e error  // 期待するエラー
-	// }{
-	// 	{
-	// 		q:    "?q=001", e:    http.StatusOK,
-	// 	},
-	// 	{
-	// 		q:    "",
-	// 		e:    http.StatusBadRequest,
-	// 	},
-	// 	{
-	// 		q:    "?q=",
-	// 		e:    http.StatusBadRequest,
-	// 	},
-	// }
+	tests := []struct {
+		q  string // テストするパラメータ (?q=...)
+		ok bool   // 想定結果 true:検証成功、false:検証エラー
+	}{
+		{q: "", ok: true},
+		{q: "?office-id=", ok: true},
+		{q: "?office-id=X1", ok: true},
+		{q: "?office-id=123", ok: false},
+		{q: "?office-id=あ", ok: false},
+	}
 
-	// for _, tt := range tests {
-	// 	t.Run(tt.name, func(t *testing.T) {
-	// 		// 1. レスポンスを記録するレコーダーとコンテキストを作成
-	// 		w := httptest.NewRecorder()
-	// 		c, _ := gin.CreateTestContext(w)
+	for _, tt := range tests {
+		t.Run("param:"+tt.q, func(t *testing.T) {
+			w := httptest.NewRecorder()
+			c, _ := gin.CreateTestContext(w)
 
-	// 		// 2. リクエストを擬似的に作成してセット
-	// 		c.Request, _ = http.NewRequest("GET", "/dummy"+tt.q, nil)
+			req, _ := http.NewRequest("GET", "/dummy"+tt.q, nil)
+			c.Request = req
 
-	// 		// 3. ハンドラーを実行
-	// 		GetSurveyors()(c)
+			uc := new(MockSurveyUseCase)
+			if tt.ok {
+				// 失敗ケースでモックを設定しないことで「バリデーションエラー時はUseCaseが呼ばれないこと」も暗黙的に検証できる
+				uc.On("GetSurveyors", mock.Anything).
+					Return(domain.Surveyors{}, nil)
+			}
 
-	// 		// 4. 結果の検証
-	// 		if w.Code != tt.c {
-	// 			t.Errorf("status code got %d, want %d", w.Code, tt.c)
-	// 		}
+			GetSurveyors(uc)(c)
 
-	// 		// 必要であればレスポンスボディ(w.Body.String())の検証もここで行えます
-	// 	})
-	// }
+			assert := assert.New(t)
+
+			if tt.ok {
+				assert.Equal(http.StatusOK, w.Code)
+				assert.Empty(c.Errors)
+			} else {
+				pe := c.Errors.ByType(gin.ErrorTypePublic).Last()
+				if assert.NotEmpty(pe) {
+					var b *errs.BusinessError
+					if errors.As(pe.Err, &b) {
+						assert.Equal(errs.InvalidRequest, pe.Err.(*errs.BusinessError).GetCode())
+					} else {
+						assert.Fail("エラーコードが想定外です")
+					}
+				}
+			}
+		})
+	}
+}
+
+func Test_GetSurveyors_FailureLogic(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+
+	c.Request, _ = http.NewRequest("GET", "/dummy?office-id=XX", nil)
+
+	// ドメインロジックがエラーを返す想定
+	uc := new(MockSurveyUseCase)
+	uc.On("GetSurveyors", mock.Anything).
+		Return(domain.Surveyors(nil), errs.NewBusinessError(errs.Exclusion))
+
+	GetSurveyors(uc)(c)
+
+	assert := assert.New(t)
+
+	// エラーの内容を検証する。
+	pe := c.Errors.ByType(gin.ErrorTypePublic).Last()
+	if assert.NotEmpty(pe) {
+		var b *errs.BusinessError
+		if errors.As(pe.Err, &b) {
+			assert.Equal(errs.Exclusion, pe.Err.(*errs.BusinessError).GetCode())
+		} else {
+			assert.Fail("エラーコードが想定外です")
+		}
+	}
+}
+
+// testify/mockを使用してモック作成
+type MockSurveyUseCase struct {
+	mock.Mock
+}
+
+func (m *MockSurveyUseCase) GetSurveyors(filter domain.SurveyorFilter) (domain.Surveyors, error) {
+	args := m.Called(filter)
+	return args.Get(0).(domain.Surveyors), args.Error(1)
 }

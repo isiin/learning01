@@ -47,7 +47,7 @@ func Test_GetSamples_Success(t *testing.T) {
 			c, _ := gin.CreateTestContext(w)
 			c.Request, _ = http.NewRequest("GET", "/dummy?q1=abc", nil)
 
-			uc := new(mockUseCase)
+			uc := new(MockSampleUseCase)
 			uc.On("GetSamples").Return(tt.mockRet, nil)
 
 			GetSamples(uc)(c)
@@ -115,7 +115,7 @@ func Test_GetSamples_Validation(t *testing.T) {
 			c.Request, _ = http.NewRequest("GET", "/dummy"+tt.q, nil)
 
 			// 3. モックの設定とハンドラー実行
-			uc := new(mockUseCase)
+			uc := new(MockSampleUseCase)
 			uc.On("GetSamples").Return(domain.Samples{}, nil)
 
 			GetSamples(uc)(c)
@@ -130,12 +130,13 @@ func Test_GetSamples_Validation(t *testing.T) {
 			} else {
 				// エラーケースでは、エラーの内容を検証する。
 				pe := c.Errors.ByType(gin.ErrorTypePublic).Last()
-				assert.NotEmpty(pe)
-				var b *errs.BusinessError
-				if errors.As(pe.Err, &b) {
-					assert.Equal(errs.InvalidRequest, pe.Err.(*errs.BusinessError).GetCode())
-				} else {
-					assert.Fail("エラーコードが想定外です")
+				if assert.NotEmpty(pe) {
+					var b *errs.BusinessError
+					if errors.As(pe.Err, &b) {
+						assert.Equal(errs.InvalidRequest, pe.Err.(*errs.BusinessError).GetCode())
+					} else {
+						assert.Fail("エラーコードが想定外です")
+					}
 				}
 			}
 		})
@@ -150,7 +151,7 @@ func Test_GetSamples_FailureLogic(t *testing.T) {
 	c.Request, _ = http.NewRequest("GET", "/dummy?q1=abc", nil)
 
 	// ドメインロジックがエラーを返す想定
-	uc := new(mockUseCase)
+	uc := new(MockSampleUseCase)
 	uc.On("GetSamples").Return(domain.Samples{}, errs.NewBusinessError(errs.Exclusion))
 
 	GetSamples(uc)(c)
@@ -159,21 +160,22 @@ func Test_GetSamples_FailureLogic(t *testing.T) {
 
 	// エラーの内容を検証する。
 	pe := c.Errors.ByType(gin.ErrorTypePublic).Last()
-	assert.NotEmpty(pe)
-	var b *errs.BusinessError
-	if errors.As(pe.Err, &b) {
-		assert.Equal(errs.Exclusion, pe.Err.(*errs.BusinessError).GetCode())
-	} else {
-		assert.Fail("エラーコードが想定外です")
+	if assert.NotEmpty(pe) {
+		var b *errs.BusinessError
+		if errors.As(pe.Err, &b) {
+			assert.Equal(errs.Exclusion, pe.Err.(*errs.BusinessError).GetCode())
+		} else {
+			assert.Fail("エラーコードが想定外です")
+		}
 	}
 }
 
 // testify/mockを使用してモック作成
-type mockUseCase struct {
+type MockSampleUseCase struct {
 	mock.Mock
 }
 
-func (m *mockUseCase) GetSamples() (domain.Samples, error) {
+func (m *MockSampleUseCase) GetSamples() (domain.Samples, error) {
 	args := m.Called()
 	return args.Get(0).(domain.Samples), args.Error(1)
 }
