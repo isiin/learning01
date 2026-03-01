@@ -24,24 +24,12 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "name": "q1",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "maxLength": 3,
-                        "type": "string",
-                        "name": "q2",
+                        "name": "dateUtc",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "q3",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "name": "q4",
+                        "name": "email",
                         "in": "query"
                     },
                     {
@@ -50,12 +38,25 @@ const docTemplate = `{
                             "type": "integer"
                         },
                         "collectionFormat": "csv",
-                        "name": "q5",
+                        "name": "intArray",
                         "in": "query"
                     },
                     {
                         "type": "string",
-                        "name": "q6",
+                        "name": "q1",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 3,
+                        "minLength": 2,
+                        "type": "string",
+                        "name": "q2",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "name": "uuid",
                         "in": "query"
                     }
                 ],
@@ -67,7 +68,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "検証エラー",
+                        "description": "不正なリクエスト",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "想定外のエラー",
                         "schema": {
                             "$ref": "#/definitions/handler.ErrorResponse"
                         }
@@ -75,7 +82,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/surveyors/query": {
+        "/surveyors": {
             "get": {
                 "tags": [
                     "surveyors"
@@ -83,11 +90,29 @@ const docTemplate = `{
                 "summary": "指定した事業所の調査員のリストを返す",
                 "parameters": [
                     {
+                        "maxLength": 6,
                         "type": "string",
-                        "description": "事業所のid",
-                        "name": "q",
-                        "in": "query",
-                        "required": true
+                        "example": "000001",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "maxLength": 2,
+                        "type": "string",
+                        "example": "XX",
+                        "name": "office-id",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "basic",
+                            "detail"
+                        ],
+                        "type": "string",
+                        "example": "detail",
+                        "description": "表示形式を指定するパラメータ",
+                        "name": "view",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -96,12 +121,18 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.Surveyor"
+                                "$ref": "#/definitions/handler.GetSurveyorsResponse"
                             }
                         }
                     },
                     "400": {
-                        "description": "検証エラー",
+                        "description": "不正なリクエスト",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "想定外のエラー",
                         "schema": {
                             "$ref": "#/definitions/handler.ErrorResponse"
                         }
@@ -114,13 +145,24 @@ const docTemplate = `{
         "handler.ErrorResponse": {
             "type": "object",
             "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "INVALID_REQUEST"
+                },
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "aaa",
+                        "bbb",
+                        "ccc"
+                    ]
+                },
                 "message": {
                     "type": "string",
-                    "example": "status bad request"
-                },
-                "status": {
-                    "type": "integer",
-                    "example": 400
+                    "example": "不正なリクエストです"
                 }
             }
         },
@@ -129,15 +171,15 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "string",
-                    "example": "000001"
+                    "example": "11111"
                 },
                 "name": {
                     "type": "string",
-                    "example": "調査員1"
+                    "example": "サンプル1"
                 }
             }
         },
-        "handler.Surveyor": {
+        "handler.GetSurveyorsResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -147,6 +189,15 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "example": "調査員1"
+                },
+                "office": {
+                    "description": "omitemptyをつけると、nilの場合はJSONに出力されません",
+                    "type": "string",
+                    "example": "札幌事業所"
+                },
+                "office-id": {
+                    "type": "string",
+                    "example": "XX"
                 }
             }
         }

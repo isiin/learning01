@@ -2,29 +2,44 @@ basePath: /v1
 definitions:
   handler.ErrorResponse:
     properties:
-      message:
-        example: status bad request
+      code:
+        example: INVALID_REQUEST
         type: string
-      status:
-        example: 400
-        type: integer
+      details:
+        example:
+        - aaa
+        - bbb
+        - ccc
+        items:
+          type: string
+        type: array
+      message:
+        example: 不正なリクエストです
+        type: string
     type: object
   handler.GetSampleResponse:
     properties:
       id:
-        example: "000001"
+        example: "11111"
         type: string
       name:
-        example: 調査員1
+        example: サンプル1
         type: string
     type: object
-  handler.Surveyor:
+  handler.GetSurveyorsResponse:
     properties:
       id:
         example: "000001"
         type: string
       name:
         example: 調査員1
+        type: string
+      office:
+        description: omitemptyをつけると、nilの場合はJSONに出力されません
+        example: 札幌事業所
+        type: string
+      office-id:
+        example: XX
         type: string
     type: object
 info:
@@ -36,27 +51,28 @@ paths:
     get:
       parameters:
       - in: query
-        name: q1
-        required: true
+        name: dateUtc
         type: string
       - in: query
-        maxLength: 3
-        name: q2
-        type: string
-      - in: query
-        name: q3
-        type: string
-      - in: query
-        name: q4
+        name: email
         type: string
       - collectionFormat: csv
         in: query
         items:
           type: integer
-        name: q5
+        name: intArray
         type: array
       - in: query
-        name: q6
+        name: q1
+        required: true
+        type: string
+      - in: query
+        maxLength: 3
+        minLength: 2
+        name: q2
+        type: string
+      - in: query
+        name: uuid
         type: string
       responses:
         "200":
@@ -64,29 +80,50 @@ paths:
           schema:
             $ref: '#/definitions/handler.GetSampleResponse'
         "400":
-          description: 検証エラー
+          description: 不正なリクエスト
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 想定外のエラー
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
       summary: 実験用
       tags:
       - samples
-  /surveyors/query:
+  /surveyors:
     get:
       parameters:
-      - description: 事業所のid
+      - example: "000001"
         in: query
-        name: q
-        required: true
+        maxLength: 6
+        name: id
+        type: string
+      - example: XX
+        in: query
+        maxLength: 2
+        name: office-id
+        type: string
+      - description: 表示形式を指定するパラメータ
+        enum:
+        - basic
+        - detail
+        example: detail
+        in: query
+        name: view
         type: string
       responses:
         "200":
           description: 調査員のリスト
           schema:
             items:
-              $ref: '#/definitions/handler.Surveyor'
+              $ref: '#/definitions/handler.GetSurveyorsResponse'
             type: array
         "400":
-          description: 検証エラー
+          description: 不正なリクエスト
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: 想定外のエラー
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
       summary: 指定した事業所の調査員のリストを返す
