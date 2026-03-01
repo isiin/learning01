@@ -65,7 +65,7 @@ func Test_GetSurveyors_Success(t *testing.T) {
 			assert.Empty(c.Errors)
 
 			expectedJson, _ := json.Marshal(tt.expected)
-			assert.Equal(string(expectedJson), w.Body.String())
+			assert.JSONEq(string(expectedJson), w.Body.String())
 
 		})
 	}
