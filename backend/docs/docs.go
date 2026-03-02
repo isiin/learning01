@@ -87,31 +87,13 @@ const docTemplate = `{
                 "tags": [
                     "surveyors"
                 ],
-                "summary": "指定した事業所の調査員のリストを返す",
+                "summary": "指定条件の調査員のリストを返す",
                 "parameters": [
-                    {
-                        "maxLength": 6,
-                        "type": "string",
-                        "example": "000001",
-                        "name": "id",
-                        "in": "query"
-                    },
                     {
                         "maxLength": 2,
                         "type": "string",
                         "example": "XX",
                         "name": "office-id",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "basic",
-                            "detail"
-                        ],
-                        "type": "string",
-                        "example": "detail",
-                        "description": "表示形式を指定するパラメータ",
-                        "name": "view",
                         "in": "query"
                     }
                 ],
@@ -126,7 +108,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "不正なリクエスト",
+                        "description": "リクエスト形式不正",
                         "schema": {
                             "$ref": "#/definitions/handler.ErrorResponse"
                         }
@@ -189,15 +171,6 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "example": "調査員1"
-                },
-                "office": {
-                    "description": "omitemptyをつけると、nilの場合はJSONに出力されません",
-                    "type": "string",
-                    "example": "札幌事業所"
-                },
-                "office-id": {
-                    "type": "string",
-                    "example": "XX"
                 }
             }
         }

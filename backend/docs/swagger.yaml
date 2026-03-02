@@ -34,13 +34,6 @@ definitions:
       name:
         example: 調査員1
         type: string
-      office:
-        description: omitemptyをつけると、nilの場合はJSONに出力されません
-        example: 札幌事業所
-        type: string
-      office-id:
-        example: XX
-        type: string
     type: object
 info:
   contact: {}
@@ -93,23 +86,10 @@ paths:
   /surveyors:
     get:
       parameters:
-      - example: "000001"
-        in: query
-        maxLength: 6
-        name: id
-        type: string
       - example: XX
         in: query
         maxLength: 2
         name: office-id
-        type: string
-      - description: 表示形式を指定するパラメータ
-        enum:
-        - basic
-        - detail
-        example: detail
-        in: query
-        name: view
         type: string
       responses:
         "200":
@@ -119,14 +99,14 @@ paths:
               $ref: '#/definitions/handler.GetSurveyorsResponse'
             type: array
         "400":
-          description: 不正なリクエスト
+          description: リクエスト形式不正
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
         "500":
           description: 想定外のエラー
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
-      summary: 指定した事業所の調査員のリストを返す
+      summary: 指定条件の調査員のリストを返す
       tags:
       - surveyors
 swagger: "2.0"

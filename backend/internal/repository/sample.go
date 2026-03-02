@@ -2,7 +2,6 @@ package repository
 
 import (
 	"react-ts/backend/internal/domain"
-	"react-ts/backend/internal/errs"
 )
 
 // TODO repositoryの実装
@@ -15,5 +14,10 @@ type repository struct {
 }
 
 func (r *repository) GetSamples() (domain.Samples, error) {
-	return nil, errs.NewBusinessError(errs.Exclusion, "xxxx")
+	//TODO
+	ret := domain.Samples{
+		{ID: "01", Name: "サンプル1"},
+		{ID: "02", Name: "サンプル2"},
+	}
+	return ret, nil
 }

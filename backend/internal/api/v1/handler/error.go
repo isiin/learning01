@@ -49,7 +49,7 @@ func ErrorHandler() gin.HandlerFunc {
 	}
 }
 
-// TODO createValidationDetails はバリデーションエラーから詳細なメッセージのスライスを生成します。
+// createValidationDetails はバリデーションエラーから詳細なメッセージのスライスを生成します。
 func createValidationDetails(err error) []string {
 	var ve validator.ValidationErrors
 	// エラーがバリデーションエラーではない場合は、そのままエラーメッセージを返す
@@ -59,7 +59,7 @@ func createValidationDetails(err error) []string {
 
 	details := make([]string, len(ve))
 	for i, fe := range ve {
-		// ここでタグに応じて日本語のメッセージを返すことも可能です
+		// TODO ここでタグに応じて日本語のメッセージを返すことも可能です
 		details[i] = fmt.Sprintf("Field validation for '%s' failed on the '%s' tag", fe.Field(), fe.Tag())
 	}
 
